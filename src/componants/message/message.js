@@ -15,6 +15,9 @@ import {
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import FIcon from 'react-native-vector-icons/FontAwesome';
+
+import { config } from '../../../config';
 
 export default class Message extends Component {
     
@@ -56,20 +59,29 @@ export default class Message extends Component {
 
         playingState = this.state.audioProgress * 100 / this.state.audioLength;
 
-        return <View style={ this.props.messageSource == 'received' 
+        var messageContainerStyle = this.props.messageSource == 'received' 
             ? styles.messageContentReceived
             : styles.messageContentSent
-        }>
+
+        var buttonsColor = this.props.messageSource == 'received' 
+            ? config.receivedContainerActionButtonsColor
+            : config.sentContainerActionButtonsColor
+
+        var timerColor = this.props.messageSource == 'received' 
+            ? config.receovedContainerTextColor
+            : config.sendtContainerTextColor
+
+        return <View style={messageContainerStyle}>
             <TouchableOpacity
                 style={styles.audioButtons}
                 onPress={ this._handlePlayButton }
             >
                 {this.state.playing
-                ? <Icon name="stop" size={18} color="#000" />
-                : <Icon name="play" size={18} color="#000" />
+                ? <Icon name="stop" size={18} color={buttonsColor} />
+                : <Icon name="play" size={18} color={buttonsColor} />
                 }
             </TouchableOpacity>
-            <Text style={ styles.audioTimer }>
+            <Text style={[styles.audioTimer, {color: timerColor}]}>
                 {this.state.audioLength}
             </Text>
             <View style={styles.audioBarContainer}>
@@ -83,13 +95,26 @@ export default class Message extends Component {
         </View>
     }
 
+    avatar = () => {
+        // handle if user image was provided
+
+        // else
+        return <View style={styles.profileImageContainer}>
+            <FIcon name="user-circle" size={30} color={config.primaryColor} />
+        </View>
+    }
+
     render() {
+        var showAvatar = this.props.messageSource == 'received' ? true : false;
+
         return (
             <View style={this.props.messageSource == 'received' 
             ? styles.container 
             : styles.reversContainer}>
-                {this.props.showProfileImage ? <View style={styles.profileImage} /> : null}
-                {this.props.renderProfileImageSpace ? <View style={styles.profileImageSpace} /> : null}
+                {this.props.showProfileImage && showAvatar? this.avatar() : null}
+                {this.props.renderProfileImageSpace && showAvatar && !this.props.showProfileImage
+                ? <View style={styles.profileImageSpace} /> 
+                : null}
                 {this.props.messageType == 'text' ? this.textMessage() : null }
                 {this.props.messageType == 'audio' ? this.audioMessage() : null }
                 <View style={{flex: 1}} />
@@ -100,34 +125,37 @@ export default class Message extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'red',
+        backgroundColor: 'white',
         flexDirection: 'row',
         flex: 1,
         margin: 10,
         alignItems: 'flex-end'
     },
     reversContainer: {
-        backgroundColor: 'red',
+        backgroundColor: 'white',
         flexDirection: 'row-reverse',
         flex: 1,
         margin: 10,
         alignItems: 'flex-end'
     },
-    profileImage: {
-        height: 50,
-        width: 50,
-        borderRadius: 25,
-        backgroundColor: 'green',
+    profileImageContainer: {
+        height: 40,
+        width: 40,
+        borderRadius: 20,
+        backgroundColor: '#eee',
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     profileImageSpace: {
         height: 50,
         width: 50,
-        backgroundColor: 'pink',
+        backgroundColor: 'white',
     },
     messageContentReceived: {
         flexDirection: 'row',
         alignItems:'center',
-        backgroundColor: 'yellow',
+        backgroundColor: config.receivedContainerBackground,
+        color: config.receovedContainerTextColor,
         flex: 3,
         padding: 25,
         marginHorizontal: 5,
@@ -138,13 +166,14 @@ const styles = StyleSheet.create({
     messageContentSent: {
         flexDirection: 'row',
         alignItems:'center',
-        backgroundColor: 'yellow',
+        backgroundColor: config.sentContainerBackgroundColor,
+        color: config.sendtContainerTextColor,
         flex: 3,
         padding: 25,
         marginHorizontal: 5,
         borderRadius: 25,
         borderBottomRightRadius: 0,
-        textAlign: 'right'
+        textAlign: 'left'
     },
     audioButtons: {
         margin: 0,
@@ -153,7 +182,6 @@ const styles = StyleSheet.create({
     audioTimer: {
         marginHorizontal: 10,
         fontSize: 11,
-        color: '#000'
     },
     audioBarContainer: {
         flex: 1,
@@ -162,7 +190,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#aaa',
     },
     audioBarProgress: {
-        backgroundColor: 'green',
+        backgroundColor: config.audioPlayerProgressBarIndicator,
         borderRightWidth: 3,
         borderRightColor: 'white'
     }

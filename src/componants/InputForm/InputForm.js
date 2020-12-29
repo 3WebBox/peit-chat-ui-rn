@@ -10,12 +10,13 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   View,
-  TouchableOpacity,
+  Pressable,
   TextInput,
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import EIcon from 'react-native-vector-icons/Entypo';
+import { config } from '../../../config';
 
 export default class InputForm extends Component {
     
@@ -41,6 +42,12 @@ export default class InputForm extends Component {
     }
 
     _handleSending = () => {
+        
+        var messageContent = this.state.messageContent
+
+        if(!messageContent) return;
+        if(!messageContent.trim()) return;
+
         const {websocket, senderUuid, apiKey, chatUuid} = this.props
 
         try {
@@ -48,7 +55,7 @@ export default class InputForm extends Component {
                 action: 'send',
                 api_key: apiKey,
                 type: this.state.messageType,
-                content: this.state.messageContent,
+                content: messageContent,
                 sender_uuid: senderUuid,
                 chat_uuid: chatUuid
             }
@@ -68,32 +75,48 @@ export default class InputForm extends Component {
 
     _renderMessagingView() {
         return (
-            <>
+            <View style={styles.textInputContainer}>
             <TextInput
                 value={this.state.messageType == "text" ? this.state.messageContent : null}
                 style={styles.inputField}
                 placeholder='Type your message'
                 onChangeText={(text) => this.setState({ messageContent: text })}
+                multiline
             />
-            <TouchableOpacity
+            <Pressable
                 style={styles.buttonContainer}
                 onPress={ this._handlePlayButton }
             >
-                <EIcon name="attachment" size={22} color="#000" />
-            </TouchableOpacity>
-            <TouchableOpacity
+                {({ pressed }) => (
+                    <EIcon name="attachment" size={22} color={ pressed 
+                        ? config.secondaryColor 
+                        : config.actionButtonsColor
+                    } />
+                )}
+            </Pressable>
+            <Pressable
                 style={styles.buttonContainer}
                 onPress={ this._handlePlayButton }
             >
-                <EIcon name="mic" size={22} color="#000" />
-            </TouchableOpacity>
-            <TouchableOpacity
+                {({ pressed }) => (
+                    <EIcon name="mic" size={22} color={ pressed 
+                        ? config.secondaryColor 
+                        : config.actionButtonsColor
+                    } />
+                )}
+            </Pressable>
+            <Pressable
                 style={styles.buttonContainer}
                 onPress={ () => this._handleSending() }
             >
-                <Icon name="send" size={22} color="#000" />
-            </TouchableOpacity>  
-            </>
+                {({ pressed }) => (
+                    <Icon name="send" size={22} color={ pressed 
+                        ? config.secondaryColor 
+                        : config.actionButtonsColor
+                    } />
+                )}
+            </Pressable>  
+            </View>
         );
     }
 
@@ -110,10 +133,12 @@ export default class InputForm extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'gray',
+        backgroundColor: 'white',
         flexDirection: 'row',
         padding: 10,
         alignItems: 'center',
+        borderTopWidth: 1,
+        borderTopColor: '#ddd',
     },
     inputField: {
         flex: 1,
@@ -123,6 +148,11 @@ const styles = StyleSheet.create({
     buttonContainer: {
         marginHorizontal: 5,
         padding: 2,
-        marginLeft: 3
+        marginLeft: 3,
+        marginBottom: 6
+    },
+    textInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'flex-end'
     }
 });

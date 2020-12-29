@@ -15,10 +15,10 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 
-import Message from './src/componants/message/message';
-import InputForm from './src/componants/InputForm/InputForm';
+import Message from '../componants/message/message';
+import InputForm from '../componants/InputForm/InputForm';
 
-import {config} from './config';
+import {config} from '../../config';
 
 export default class ChatScreen extends Component {
   constructor() {
@@ -32,10 +32,6 @@ export default class ChatScreen extends Component {
         messages: [],
 
         // the following are dummy data for testing purpose
-
-        senderUuid: 'user-1',
-        chatUuid: null,
-        apiKey: 'dde8c1d8-1e87-46ef-89ec-66724ea62ffb'
     };
 
     //this.socket = new WebSocket('wss://cloud.peit.io:5080/');
@@ -48,12 +44,12 @@ export default class ChatScreen extends Component {
 
   // GET INITIAL MESSAGES
   getMessages() {
-    fetch(`${config.WWS}/messages/get-messages/${this.props.chatUuid}`, {
+    fetch(`${config.WWS}messages/get-messages/${this.props.chatUuid}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        'X-Api-Key': 'testing-key'
+        'X-Api-Key': this.props.apiKey
       }
     })
     .then((response) => response.json())
@@ -61,9 +57,6 @@ export default class ChatScreen extends Component {
       this.setState({
         messages: json.data || []
       });
-    })
-    .then( () => {
-      this.ScrollView.scrollToEnd();
     })
     .catch((error) => {
       console.error(error);
@@ -78,9 +71,7 @@ export default class ChatScreen extends Component {
     var connectInterval;
 
     ws.onopen = () => {
-      console.log("connected websocket main component");
-
-      ws.send(JSON.stringify( {action: "set-chat", chat_uuid: this.state.chatUuid}));
+      ws.send(JSON.stringify( {action: "set-chat", chat_uuid: this.props.chatUuid}));
 
       this.setState({ ws: ws });
 
@@ -127,8 +118,6 @@ export default class ChatScreen extends Component {
 
       this.setState({
         messages: messages
-      }, () =>{
-        this.ScrollView.scrollToEnd();
       });
 
       console.log(msg);
@@ -152,56 +141,17 @@ export default class ChatScreen extends Component {
               alignContent: 'flex-end',
             }}
             style={styles.scrollView}
-            ref={ref => (this.ScrollView = ref)}
+            ref={ref => {this.scrollView = ref}}
+            onContentSizeChange={() => this.scrollView.scrollToEnd({animated: true})}
           >
-            <View style={{flex: 1}} />
-            <Message 
-              showProfileImage={false}
-              renderProfileImageSpace={true}
-              messageType='text'
-              messageContent='Hello world'
-              messageSource='received'
-            />
-            <Message 
-              showProfileImage={false}
-              renderProfileImageSpace={false}
-              messageType='text'
-              messageContent='Hello world'
-              messageSource='received'
-            />
-            <Message 
-              showProfileImage={false}
-              renderProfileImageSpace={true}
-              messageType='text'
-              messageContent='Find something of a long text can be found in places where nobody can find what needs to be found.'
-              messageSource='received'
-            />
-            <Message 
-              showProfileImage={true}
-              messageType='text'
-              messageContent='Hello world'
-              messageSource='received'
-            />
-            <Message 
-              showProfileImage={true}
-              renderProfileImageSpace={false}
-              messageType='audio'
-              messageContent='Hello world'
-              messageSource='sent'
-            />
-            <Message 
-              showProfileImage={true}
-              messageType='audio'
-              messageContent='Hello world'
-              messageSource='received'
-            />
             {this.state.messages.map( msg => {
               return <Message 
                 key={msg.uuid}
                 showProfileImage={true}
+                renderProfileImageSpace={false}
                 messageType={msg.type}
                 messageContent={msg.content}
-                messageSource={this.state.senderUuid == msg.sender_uuid ? 'sent' : 'received'}
+                messageSource={this.props.senderUuid == msg.sender_uuid ? 'sent' : 'received'}
               />
             })}
           </ScrollView>
@@ -216,9 +166,10 @@ export default class ChatScreen extends Component {
           >
             <InputForm 
               websocket={this.state.ws}
-              senderUuid={this.state.senderUuid}
+              senderUuid={this.props.senderUuid}
+              userUuid={this.props.userUuid}
               chatUuid={this.props.chatUuid}
-              apiKey={this.state.apiKey}
+              apiKey={this.props.apiKey}
             />
           </KeyboardAvoidingView>
         </SafeAreaView>

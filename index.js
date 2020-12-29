@@ -14,11 +14,13 @@ AppRegistry.registerComponent(appName, () => App);
 import React from 'react';
 import { Navigation } from 'react-native-navigation';
 
-import ChatsListingScreen from './chats_listing_screen';
-import ChatScreen from './chat_screen';
+import ChatsListingScreen from './src/screens/chats_listing_screen';
+import ChatScreen from './src/screens/chat_screen';
+import ConfigAppScreen from './src/screens/config_app_screen';
 
 Navigation.registerComponent('ChatsListing', () => ChatsListingScreen);
 Navigation.registerComponent('Chat', () => ChatScreen);
+Navigation.registerComponent('ConfigScreen', () => ConfigAppScreen);
 
 Navigation.events().registerAppLaunchedListener(async () => {
     Navigation.setRoot({
@@ -28,11 +30,11 @@ Navigation.events().registerAppLaunchedListener(async () => {
                 children: [
                     {
                         component: {
-                            name: 'ChatsListing',
+                            name: 'ConfigScreen',
                             options: {
                                 topBar: {
                                     title: {
-                                        text: 'PIET Chat Demo'
+                                        text: 'PIET CHAT DEMO'
                                     }
                                 }
                             }
@@ -51,7 +53,7 @@ Navigation.setDefaultOptions({
     },
     topBar: {
       title: {
-        color: 'white'
+        color: 'white',
       },
       backButton: {
         color: 'white'

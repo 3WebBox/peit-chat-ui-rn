@@ -14,6 +14,10 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+const AudioManager = require('./audioManager');
+
+import RNFS from 'react-native-fs';
+
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import FIcon from 'react-native-vector-icons/FontAwesome';
 
@@ -33,9 +37,8 @@ export default class Message extends Component {
         super(props);
     
         this.state = {
-            playing: false,
-            audioLength: 160,
-            audioProgress: 50
+            isPlay: false,
+            playPositionString: '00:00:00',
         }
     }
 
@@ -48,16 +51,72 @@ export default class Message extends Component {
         </Text>
     }
 
-    _handlePlayButton = () => {
-        // handle play button
-
-        this.setState({ playing: !this.state.playing });
+    async pauseAudio() {
+        await AudioManager.pausePlayer()
     }
+
+    async onStartPlay() {
+        // load and create the file for play
+        var RNFS = require('react-native-fs');
+
+        // create a path you want to write to
+        // :warning: on iOS, you cannot write into `RNFS.MainBundlePath`,
+        // but `RNFS.DocumentDirectoryPath` exists on both platforms and is writable
+        var path = `${RNFS.DocumentDirectoryPath}/${this.props.messageUuid}.mp4`;
+
+        // write the file
+        RNFS.writeFile(path, this.props.messageContent, 'base64')
+        .then( async (success) => {
+            console.log('FILE WRITTEN!');
+            console.log(path);
+            
+            await AudioManager.startPlayer(path, (res) => {
+                const { status } = res
+                switch (status) {
+                    case AudioManager.AUDIO_STATUS.begin: {
+                        console.log('BEGIN AUDIO')
+                        this.setState({ isPlay: true })
+                        break;
+                    }
+                    case AudioManager.AUDIO_STATUS.play: {
+                        const { current_position, duration } = res.data
+                        console.log(res);
+                        this.setState({ 
+                            duration: duration,
+                            playDuration: current_position,
+                            playPositionString: res.playPositionString
+                        })
+                        break
+                    }
+                    case AudioManager.AUDIO_STATUS.pause: {
+                        console.log('PAUSE AUDIO')
+                        this.setState({ isPause: true })
+                        break
+                    }
+                    case AudioManager.AUDIO_STATUS.resume: {
+                        console.log('RESUME AUDIO')
+                        this.setState({ isPause: false })
+                        break;
+                    }
+                    case AudioManager.AUDIO_STATUS.stop: {
+                        console.log('STOP AUDIO')
+                        this.setState({ isPlay: false, isPause: false })
+                        break
+                    }
+                }
+            })
+        })
+        .catch((err) => {
+            console.log(err.message);
+        });
+    };
 
     audioMessage() {
         var playingState = 0;
 
-        playingState = this.state.audioProgress * 100 / this.state.audioLength;
+        if(this.state.duration) {
+            playingState = this.state.playDuration * 100 / this.state.duration;
+        }
 
         var messageContainerStyle = this.props.messageSource == 'received' 
             ? styles.messageContentReceived
@@ -74,21 +133,21 @@ export default class Message extends Component {
         return <View style={messageContainerStyle}>
             <TouchableOpacity
                 style={styles.audioButtons}
-                onPress={ this._handlePlayButton }
+                onPress={ () => this.onStartPlay() }
             >
-                {this.state.playing
+                {this.state.isPlay
                 ? <Icon name="stop" size={18} color={buttonsColor} />
                 : <Icon name="play" size={18} color={buttonsColor} />
                 }
             </TouchableOpacity>
             <Text style={[styles.audioTimer, {color: timerColor}]}>
-                {this.state.audioLength}
+                {this.state.playPositionString}
             </Text>
             <View style={styles.audioBarContainer}>
                 <View style={[
                     styles.audioBarProgress,
                     {
-                        width: playingState
+                        flex: playingState / 100
                     }
                 ]} />
             </View>
@@ -125,14 +184,12 @@ export default class Message extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'white',
         flexDirection: 'row',
         flex: 1,
         margin: 10,
         alignItems: 'flex-end'
     },
     reversContainer: {
-        backgroundColor: 'white',
         flexDirection: 'row-reverse',
         flex: 1,
         margin: 10,
@@ -186,7 +243,7 @@ const styles = StyleSheet.create({
     audioBarContainer: {
         flex: 1,
         flexDirection: 'row',
-        height: 10,
+        height: 5,
         backgroundColor: '#aaa',
     },
     audioBarProgress: {

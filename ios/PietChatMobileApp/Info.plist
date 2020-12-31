@@ -72,5 +72,7 @@
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This will allow you to record voice notes and voice commands.</string>
 </dict>
 </plist>

@@ -10,9 +10,15 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "buffer": "^6.0.3",
     "react": "16.13.1",
     "react-native": "0.63.4",
+    "react-native-audio-recorder-player": "^2.6.0",
+    "react-native-fs": "^2.16.6",
+    "react-native-image-picker": "^3.1.2",
     "react-native-navigation": "^7.7.0",
+    "react-native-permissions": "^3.0.0",
+    "react-native-uuid": "^1.4.9",
     "react-native-vector-icons": "^7.1.0"
   },
   "devDependencies": {

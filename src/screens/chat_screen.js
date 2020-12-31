@@ -147,6 +147,7 @@ export default class ChatScreen extends Component {
             {this.state.messages.map( msg => {
               return <Message 
                 key={msg.uuid}
+                messageUuid={msg.uuid}
                 showProfileImage={true}
                 renderProfileImageSpace={false}
                 messageType={msg.type}

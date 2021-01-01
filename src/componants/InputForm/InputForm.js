@@ -67,21 +67,73 @@ export default class InputForm extends Component {
         this.audioRecorderPlayer.setSubscriptionDuration(0.09); // optional. Default is 0.1
     }
 
-    _handleAttachements() {
-        ImagePicker.launchImageLibrary(
-            {
-              mediaType: 'photo',
-              includeBase64: false,
-              maxHeight: 200,
-              maxWidth: 200,
-            },
-            (response) => {
-              console.log(response)
-            },
-        )
+    _handleattachments(type) {
+        const {apiKey, senderUuid, chatUuid} = this.props
+        console.log('Here you are')
+
+        if(type === 'audio') {
+            if(!this.state.recordingPath) { return }
+
+            // handle recording upload
+            //var fileUri = this.state.recordingPath.replace("file://", "");
+            var fileUri = this.state.recordingPath;
+            
+            const file = {
+                uri: fileUri,
+                name: 'test.mp4',
+                extension: 'mp4',
+                type: 'audio/mp4',
+            }
+            
+            console.log(file.uri);
+            const body = new FormData()
+            body.append('attachment', file);
+            body.append('type', 'audio');
+            body.append('sender_uuid', senderUuid);
+            
+            console.log(`${config.WWS}messages/upload/${chatUuid}`);
+            console.log(body);
+
+            fetch(`${config.WWS}messages/upload/${chatUuid}`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'multipart/form-data;',
+                    'X-Api-Key': apiKey
+                },
+                body: body
+            })
+            .then((response) => response.json())
+            .then((json) => {
+
+                console.log(json);
+
+                this.setState({
+                    messageContent: json.data.uri
+                }, () => {
+                    this._handleSending()
+                })
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+        }
+        else if(type === 'imagePicker') {
+            ImagePicker.launchImageLibrary(
+                {
+                  mediaType: 'photo',
+                  includeBase64: false,
+                  maxHeight: 200,
+                  maxWidth: 200,
+                },
+                (response) => {
+                  console.log(response)
+                },
+            )
+        }
     }
 
-    _handleSending = () => {
+    _handleSending = async () => {
         console.log('Sending...');
 
         var messageContent = this.state.messageContent
@@ -212,16 +264,8 @@ export default class InputForm extends Component {
         const result = await this.audioRecorderPlayer.stopRecorder();
         this.audioRecorderPlayer.removeRecordBackListener();
 
-        RNFS.readFile(this.state.recordingPath, 'base64').then(res =>{
-            console.log(res);
-
-            this.setState({
-                recordSecs: 0,
-                messageContent: res
-            });
-
-            console.log(result);
-        });
+        this.setState({ recordSecs: 0 });
+        console.log(result);
     };
 
     async onStartPlay() {
@@ -312,7 +356,7 @@ export default class InputForm extends Component {
             </Pressable>
             <Pressable
                 style={styles.buttonContainer}
-                onPress={ () => this._handleSending() }
+                onPress={ () => this._handleattachments('audio') }
             >
                 {({ pressed }) => (
                     <Icon name="send" size={22} color={ pressed 
@@ -337,7 +381,7 @@ export default class InputForm extends Component {
             />
             <Pressable
                 style={styles.buttonContainer}
-                onPress={ () => this._handleAttachements() }
+                onPress={ () => this._handleattachments() }
             >
                 {({ pressed }) => (
                     <EIcon name="attachment" size={22} color={ pressed 

@@ -10,14 +10,20 @@
 [] Audio player on recording play last audio message downloaded.
 
 ## TO DO LIST
+### TOP PRIORITY
+[] Locally store chat list and messages.
+[] Support message queuing.
+
+### NORMAL
 [] Optimize code.
 [] Test on iOS.
-[] Locally store chat list and messages.
 [] Received and read status update.
 [] Optimize images viewing in messages.
 [] Show latest message in chat listing.
-[] Callback / Hook API on message successful send.
 [] Add Search in chat list and in messages.
 [] Render map links.
 [] Render downloadable files.
 [] Add time and date of messages.
+[] Messages action [delete, edit (on text messages)]
+[] View and Edit chat options
+[] Adding perticipants to chat.

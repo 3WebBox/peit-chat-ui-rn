@@ -11,8 +11,12 @@ import {
   StyleSheet,
   View,
   Text,
+  Image,
   TouchableOpacity,
+  Pressable,
 } from 'react-native';
+
+import ImageView from "react-native-image-viewing";
 
 const AudioManager = require('./audioManager');
 
@@ -39,6 +43,7 @@ export default class Message extends Component {
         this.state = {
             isPlay: false,
             playPositionString: '00:00:00',
+            imageViewerVisible: false
         }
     }
 
@@ -56,59 +61,42 @@ export default class Message extends Component {
     }
 
     async onStartPlay() {
-        // load and create the file for play
-        var RNFS = require('react-native-fs');
-
-        // create a path you want to write to
-        // :warning: on iOS, you cannot write into `RNFS.MainBundlePath`,
-        // but `RNFS.DocumentDirectoryPath` exists on both platforms and is writable
-        var path = `${RNFS.DocumentDirectoryPath}/${this.props.messageUuid}.mp4`;
-
-        // write the file
-        RNFS.writeFile(path, this.props.messageContent, 'base64')
-        .then( async (success) => {
-            console.log('FILE WRITTEN!');
-            console.log(path);
-            
-            await AudioManager.startPlayer(path, (res) => {
-                const { status } = res
-                switch (status) {
-                    case AudioManager.AUDIO_STATUS.begin: {
-                        console.log('BEGIN AUDIO')
-                        this.setState({ isPlay: true })
-                        break;
-                    }
-                    case AudioManager.AUDIO_STATUS.play: {
-                        const { current_position, duration } = res.data
-                        console.log(res);
-                        this.setState({ 
-                            duration: duration,
-                            playDuration: current_position,
-                            playPositionString: res.playPositionString
-                        })
-                        break
-                    }
-                    case AudioManager.AUDIO_STATUS.pause: {
-                        console.log('PAUSE AUDIO')
-                        this.setState({ isPause: true })
-                        break
-                    }
-                    case AudioManager.AUDIO_STATUS.resume: {
-                        console.log('RESUME AUDIO')
-                        this.setState({ isPause: false })
-                        break;
-                    }
-                    case AudioManager.AUDIO_STATUS.stop: {
-                        console.log('STOP AUDIO')
-                        this.setState({ isPlay: false, isPause: false })
-                        break
-                    }
+        console.log(this.props.messageContent);
+        await AudioManager.startPlayer(this.props.messageContent, (res) => {
+            const { status } = res
+            switch (status) {
+                case AudioManager.AUDIO_STATUS.begin: {
+                    console.log('BEGIN AUDIO')
+                    this.setState({ isPlay: true })
+                    break;
                 }
-            })
+                case AudioManager.AUDIO_STATUS.play: {
+                    const { current_position, duration } = res.data
+                    console.log(res);
+                    this.setState({ 
+                        duration: duration,
+                        playDuration: current_position,
+                        playPositionString: res.playPositionString
+                    })
+                    break
+                }
+                case AudioManager.AUDIO_STATUS.pause: {
+                    console.log('PAUSE AUDIO')
+                    this.setState({ isPause: true })
+                    break
+                }
+                case AudioManager.AUDIO_STATUS.resume: {
+                    console.log('RESUME AUDIO')
+                    this.setState({ isPause: false })
+                    break;
+                }
+                case AudioManager.AUDIO_STATUS.stop: {
+                    console.log('STOP AUDIO')
+                    this.setState({ isPlay: false, isPause: false })
+                    break
+                }
+            }
         })
-        .catch((err) => {
-            console.log(err.message);
-        });
     };
 
     audioMessage() {
@@ -154,6 +142,24 @@ export default class Message extends Component {
         </View>
     }
 
+    imageMessage() {
+        return <Pressable 
+            onPress={() => this.setState({ imageViewerVisible: true })} 
+            style={{flex: 3}}
+        >
+            <Image 
+                style={
+                        this.props.messageSource == 'received' 
+                        ? styles.imageReceived
+                        : styles.imageSent
+                }
+                source={{
+                    uri: this.props.messageContent,
+                }}
+            />
+        </Pressable>
+    }
+
     avatar = () => {
         // handle if user image was provided
 
@@ -167,6 +173,15 @@ export default class Message extends Component {
         var showAvatar = this.props.messageSource == 'received' ? true : false;
 
         return (
+            <>
+            {this.props.messageType == 'image' ?
+            <ImageView
+                images={[{ uri: this.props.messageContent }]}
+                imageIndex={0}
+                visible={this.state.imageViewerVisible}
+                onRequestClose={() => this.setState({ imageViewerVisible: false })}
+            />
+            : null}
             <View style={this.props.messageSource == 'received' 
             ? styles.container 
             : styles.reversContainer}>
@@ -176,8 +191,10 @@ export default class Message extends Component {
                 : null}
                 {this.props.messageType == 'text' ? this.textMessage() : null }
                 {this.props.messageType == 'audio' ? this.audioMessage() : null }
+                {this.props.messageType == 'image' ? this.imageMessage() : null }
                 <View style={{flex: 1}} />
-            </View>    
+            </View>  
+            </>  
         );
     }
 };
@@ -231,6 +248,26 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         borderBottomRightRadius: 0,
         textAlign: 'left'
+    },
+    imageSent: {
+        flexDirection: 'row',
+        alignItems:'center',
+        borderRadius: 10,
+        borderBottomRightRadius: 0,
+        marginHorizontal: 5,
+        flex: 3, 
+        height: 200,
+        resizeMode: 'contain'
+    },
+    imageReceived: {
+        flexDirection: 'row',
+        alignItems:'center',
+        borderRadius: 10,
+        borderBottomLeftRadius: 0,
+        marginHorizontal: 5,
+        flex: 3, 
+        height: 200,
+        resizeMode: 'contain',
     },
     audioButtons: {
         margin: 0,

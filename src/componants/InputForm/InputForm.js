@@ -67,56 +67,79 @@ export default class InputForm extends Component {
         this.audioRecorderPlayer.setSubscriptionDuration(0.09); // optional. Default is 0.1
     }
 
-    _handleattachments(type) {
-        const {apiKey, senderUuid, chatUuid} = this.props
-        console.log('Here you are')
+    async _uploadAttachment(file) {
+        // file object { path }
 
+        if(!file) { 
+            console.log('file object was not provided');
+            return false;
+        }
+
+        if(!file.path || !file.type) {
+            console.log('Object not set correctly {path, type}');
+            return false;
+        }
+
+        var path = file.path;
+        var extension = path.substr(path.lastIndexOf('.') + 1);
+        var name = `${uuid.v4()}.${extension}`;
+        var type = `${file.type}/${extension}`;
+
+        const attachment = {
+            uri: path,
+            name: name,
+            type: type
+        }
+
+        console.log(attachment);
+
+        const body = new FormData();
+        body.append('attachment', attachment);
+        body.append('sender_uuid', this.props.senderUuid);
+
+        return await fetch(`${config.WWS}messages/upload/${this.props.chatUuid}`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'multipart/form-data;',
+                'X-Api-Key': this.props.apiKey
+            },
+            body: body
+        })
+        .then((response) => response.json())
+        .then((json) => {
+
+            if(json.code === 200) {
+                return json.data.uri;
+            }
+            else {
+                console.log(json);
+                return false;
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            return false;
+        });
+    }
+
+    async _handleAttachments(type) {
         if(type === 'audio') {
             if(!this.state.recordingPath) { return }
 
-            // handle recording upload
-            //var fileUri = this.state.recordingPath.replace("file://", "");
-            var fileUri = this.state.recordingPath;
-            
-            const file = {
-                uri: fileUri,
-                name: 'test.mp4',
-                extension: 'mp4',
-                type: 'audio/mp4',
-            }
-            
-            console.log(file.uri);
-            const body = new FormData()
-            body.append('attachment', file);
-            body.append('type', 'audio');
-            body.append('sender_uuid', senderUuid);
-            
-            console.log(`${config.WWS}messages/upload/${chatUuid}`);
-            console.log(body);
+            var uploadPath = await this._uploadAttachment({ 
+                path: this.state.recordingPath,
+                type: type
+            });
 
-            fetch(`${config.WWS}messages/upload/${chatUuid}`, {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'multipart/form-data;',
-                    'X-Api-Key': apiKey
-                },
-                body: body
-            })
-            .then((response) => response.json())
-            .then((json) => {
-
-                console.log(json);
-
+            if(uploadPath) {
+                // file uploaded successfully
                 this.setState({
-                    messageContent: json.data.uri
+                    messageContent: uploadPath
                 }, () => {
                     this._handleSending()
                 })
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+            }
         }
         else if(type === 'imagePicker') {
             ImagePicker.launchImageLibrary(
@@ -126,8 +149,23 @@ export default class InputForm extends Component {
                   maxHeight: 200,
                   maxWidth: 200,
                 },
-                (response) => {
-                  console.log(response)
+                async (response) => {
+                    console.log(response)
+
+                    var uploadPath = await this._uploadAttachment({ 
+                        path: response.uri,
+                        type: 'image'
+                    });
+
+                    if(uploadPath) {
+                        // file uploaded successfully
+                        this.setState({
+                            messageType: 'image',
+                            messageContent: uploadPath
+                        }, () => {
+                            this._handleSending()
+                        })
+                    }
                 },
             )
         }
@@ -138,7 +176,6 @@ export default class InputForm extends Component {
 
         var messageContent = this.state.messageContent
         console.log(messageContent);
-
         if(!messageContent) return;
         if(!messageContent.trim()) return;
 
@@ -356,7 +393,7 @@ export default class InputForm extends Component {
             </Pressable>
             <Pressable
                 style={styles.buttonContainer}
-                onPress={ () => this._handleattachments('audio') }
+                onPress={ () => this._handleAttachments('audio') }
             >
                 {({ pressed }) => (
                     <Icon name="send" size={22} color={ pressed 
@@ -381,7 +418,7 @@ export default class InputForm extends Component {
             />
             <Pressable
                 style={styles.buttonContainer}
-                onPress={ () => this._handleattachments() }
+                onPress={ () => this._handleAttachments('imagePicker') }
             >
                 {({ pressed }) => (
                     <EIcon name="attachment" size={22} color={ pressed 

@@ -15,6 +15,7 @@
 - Support message queuing.
 
 ### NORMAL
+- Render unavialable files and images.
 - Optimize code.
 - Test on iOS.
 - Received and read status update.

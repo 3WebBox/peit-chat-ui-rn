@@ -1,4 +1,7 @@
 # PEIT CHAT RN LIBRARY / DEMO
+## IMPORTANT:
+* This version of the code is working fine but we have a newer version we've developed on top of this one for oue of our projects that is more felexable and optimized that we will implement on this repo very soon.  
+
 ## DEPENDENCIES
 1. https://github.com/dooboolab/react-native-audio-recorder-player
 2. https://github.com/zoontek/react-native-permissions

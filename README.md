@@ -5,11 +5,22 @@
 * Currently this version of the code is designed to work will with https://peit.io but it can be easily connected to any websocket as long as it stores the data the same way PEIT.io does. And moving forward we will make sure that this copy of the code works with any chat-service providing they build a library to handle operations which means this UI will use the library file to run the operation that are built be the different chat service providers.
 
 ## DEPENDENCIES
-1. https://github.com/dooboolab/react-native-audio-recorder-player
-2. https://github.com/zoontek/react-native-permissions
-3. https://github.com/itinance/react-native-fs
-4. https://github.com/react-native-image-picker/react-native-image-picker
-5. https://github.com/jobtoday/react-native-image-viewing
+- Localization (https://github.com/stefalda/localized-strings)  
+- Localization (https://github.com/zoontek/react-native-localize)  
+- SVG P1 (https://github.com/react-native-svg/react-native-svg#installation)  
+- SVG P2 (https://github.com/kristerkari/react-native-svg-transformer)  
+- RN Permissions (https://github.com/zoontek/react-native-permissions)  
+- Document Picker (https://github.com/rnmods/react-native-document-picker)
+- Upload Background (https://github.com/Vydia/react-native-background-upload)
+- Image Corp Picker (https://github.com/ivpusic/react-native-image-crop-picker)
+- Sound player (https://github.com/johnsonsu/react-native-sound-player#readme)
+- Recorder and player (https://github.com/hyochan/react-native-audio-recorder-player)
+- File Viewer (https://github.com/vinzscam/react-native-file-viewer#readme)
+- moment
+- react-native-fs
+
+### TO RUN DEMO PROJECT
+- react-native-navigation  
 
 ## NEED FIXING
 - Audio player on recording play last audio message downloaded.
@@ -33,3 +44,13 @@
 - Messages action [delete, edit (on text messages)]
 - View and Edit chat options
 - Adding perticipants to chat.
+
+
+## INSTALLATION
+### COPYING FILES
+- Copy the folder /src/screens/Chat to your project  
+
+### INSTALLING DEPENDENCES
+As mentioned above the project uses libraries that required manual installation and processes to complete.  
+  
+Note that some of those you might already have done for other dependences or you might be using a similare libraries so if you face any errors please open a new issue.  

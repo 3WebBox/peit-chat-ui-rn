@@ -11,14 +11,21 @@
   },
   "dependencies": {
     "buffer": "^6.0.3",
+    "localized-strings": "^0.2.4",
+    "moment": "^2.29.1",
     "react": "16.13.1",
     "react-native": "^0.64.2",
     "react-native-audio-recorder-player": "^2.7.0",
+    "react-native-background-upload": "^6.2.4",
+    "react-native-file-viewer": "^2.1.4",
     "react-native-fs": "^2.18.0",
-    "react-native-image-picker": "^3.8.1",
+    "react-native-image-crop-picker": "^0.36.2",
     "react-native-image-viewing": "^0.2.0",
+    "react-native-localize": "^2.1.1",
     "react-native-navigation": "^7.17.1",
     "react-native-permissions": "^3.0.5",
+    "react-native-sound-player": "^0.10.9",
+    "react-native-svg": "^12.1.1",
     "react-native-uuid": "^1.4.9",
     "react-native-vector-icons": "^7.1.0"
   },
@@ -30,6 +37,7 @@
     "eslint": "^6.5.1",
     "jest": "^25.1.0",
     "metro-react-native-babel-preset": "^0.59.0",
+    "react-native-svg-transformer": "^0.14.3",
     "react-test-renderer": "16.13.1"
   },
   "jest": {

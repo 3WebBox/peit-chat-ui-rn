@@ -99,11 +99,16 @@ export default class ChatsListingScreen extends Component {
             component: { 
               name: 'Chat',
               options: {
-                  topBar: {
-                      title: {
-                          text: `MESSAGES`
-                      }
-                  }
+                statusBar: { backgroundColor: config.primaryColor, style: 'light' },
+                popGesture: false,
+                topBar: {
+                  animate: true,
+                  noBorder: true,
+                  backButton: { color: config.lightColor, showTitle: false },
+                  background: { color: config.primaryColor },
+                  title: { text: lang["en"].chat.title },
+                  elevation: 0
+                }
               },
               passProps: {
                 chatUuid: item.uuid,

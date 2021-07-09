@@ -36,21 +36,6 @@ import LocalizedStrings from 'localized-strings';
 import { lang } from './local/index';
 
 class Chat extends Component {
-  static get options() {
-    return {
-      statusBar: { backgroundColor: config.primaryColor, style: 'light' },
-      popGesture: false,
-      topBar: {
-        animate: true,
-        noBorder: true,
-        backButton: { color: config.lightColor, showTitle: false },
-        background: { color: config.primaryColor },
-        title: { text: lang["en"].chat.title },
-        elevation: 0
-      }
-    };
-  }
-
   constructor(props) {
     super();
 

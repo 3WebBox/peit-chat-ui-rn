@@ -1,4 +1,5 @@
 export const config = {
+  version:                                "A 1.0.005300",
   PEIT_URL:                               "https://peit.io/",
   WWS:                                    "https://cloud.peit.io/",
   API_KEY:                                'dde8c1d8-1e87-46ef-89ec-66724ea62ffb',

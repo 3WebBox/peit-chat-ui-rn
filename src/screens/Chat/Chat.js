@@ -237,7 +237,13 @@ class Chat extends Component {
     </View>
 
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+      <SafeAreaView 
+        style={{ 
+          flex: 1,
+          backgroundColor: 'white',
+          marginTop: this.state.headerHeight
+        }}
+      >
         <KeyboardAvoidingView 
           behavior={Platform.select({ ios: 'padding' })} 
           keyboardVerticalOffset={(Platform.OS === 'ios') ? 90 : -200}

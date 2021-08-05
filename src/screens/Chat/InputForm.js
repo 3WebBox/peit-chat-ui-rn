@@ -132,7 +132,14 @@ class InputForm extends Component {
         mediaType: 'video',
       })
       .then(video => {
-        var path = video.path.replace('file:///', '/');
+        var path = video.path;
+    
+        if(Platform.OS === 'ios') {
+          path = `file://${path}`
+        }
+        else {
+          path = path.replace('file:///', '/');
+        }
 
         const options = {
           url: `${config.WWS}messages/upload/${this.props.chatUuid}`,
@@ -188,7 +195,14 @@ class InputForm extends Component {
     else if (type === 'picture-camera') {
       ImagePicker.openCamera({})
       .then(image => {
-        var path = image.path.replace('file:///', '/');
+        var path = image.path;
+    
+        if(Platform.OS === 'ios') {
+          path = `file://${path}`
+        }
+        else {
+          path = path.replace('file:///', '/');
+        }
 
         const options = {
           url: `${config.WWS}messages/upload/${this.props.chatUuid}`,
@@ -244,7 +258,14 @@ class InputForm extends Component {
     else if (type === 'gallary') {
       ImagePicker.openPicker({})
       .then(image => {
-        var path = image.path.replace('file:///', '/');
+        var path = image.path;
+    
+        if(Platform.OS === 'ios') {
+          path = `file://${path}`
+        }
+        else {
+          path = path.replace('file:///', '/');
+        }
 
         const options = {
           url: `${config.WWS}messages/upload/${this.props.chatUuid}`,

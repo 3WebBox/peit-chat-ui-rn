@@ -70,7 +70,7 @@ class InputForm extends Component {
     };
 
     this.audioRecorderPlayer = new AudioRecorderPlayer();
-    this.audioRecorderPlayer.setSubscriptionDuration(0.09); // optional. Default is 0.1
+    this.audioRecorderPlayer.setSubscriptionDuration(0.09);
   }
 
   async _handleAttachments(type) {
@@ -79,7 +79,14 @@ class InputForm extends Component {
 
       await this.onStopRecord()
 
-      var path = this.state.recordingPath.replace('file:///', '/');
+      var path = this.state.recordingPath;
+
+      if(Platform.OS === 'ios') {
+        path = `file://${path}`
+      }
+      else {
+        path = path.replace('file:///', '/');
+      }
 
       const options = {
         url: `${config.WWS}messages/upload/${this.props.chatUuid}`,
@@ -190,6 +197,8 @@ class InputForm extends Component {
       .catch(e => {
         console.error(e)
       });
+
+      this.taggleAttachmentModal();
     }
 
     else if (type === 'picture-camera') {
@@ -253,6 +262,8 @@ class InputForm extends Component {
       .catch(e => {
         console.eroor(e)
       });
+
+      this.taggleAttachmentModal();
     }
 
     else if (type === 'gallary') {
@@ -316,9 +327,10 @@ class InputForm extends Component {
       .catch(e => {
         console.error(e)
       });
-    }
 
-    this.taggleAttachmentModal();
+
+      this.taggleAttachmentModal();
+    }
   }
 
   sendTone = async () => {
@@ -366,15 +378,10 @@ class InputForm extends Component {
   _switchInputView(view) {
     switch (view) {
       case 'recording':
-        const path = Platform.select({
-          ios: `${uuid.v4()}.m4a`,
-          android: `${RNFS.ExternalDirectoryPath}/Voicenotes/${uuid.v4()}.mp4`,
-        });
-
         this.setState({
           inputView: 'recording',
           messageType: 'voicenote',
-          recordingPath: path
+          recordingPath: null
         });
 
         break;
@@ -398,9 +405,9 @@ class InputForm extends Component {
         );
 
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('You can use the storage');
+          console.warn('You can use the storage');
         } else {
-          console.log('permission denied');
+          console.warn('permission denied');
           return;
         }
       } catch (err) {
@@ -421,9 +428,9 @@ class InputForm extends Component {
         );
 
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('You can use the microphone');
+          console.warn('You can use the microphone');
         } else {
-          console.log('permission denied');
+          console.warn('permission denied');
           return;
         }
       } catch (err) {
@@ -432,12 +439,17 @@ class InputForm extends Component {
       }
     }
 
-    try {
-      await RNFS.mkdir(`${RNFS.ExternalDirectoryPath}/Voicenotes/`);
-    }
-    catch(e) {
-      console.error(e);
-    }
+    const directory = Platform.select({
+      ios: `${RNFS.DocumentDirectoryPath}/Voicenotes`,
+      android: `${RNFS.EsxternalDirectoryPath}/Voicenotes`
+    });
+
+    const path = Platform.select({
+      ios: `${uuid.v4()}.m4a`,
+      android: `${directory}/${uuid.v4()}.mp4`,
+    });
+    
+    await RNFS.mkdir(directory);
 
     const audioSet = {
       AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
@@ -446,23 +458,25 @@ class InputForm extends Component {
       AVNumberOfChannelsKeyIOS: 2,
       AVFormatIDKeyIOS: AVEncodingOption.aac,
     };
+    
+    const meteringEnabled = false;
 
     const uri = await this.audioRecorderPlayer.startRecorder(
-      this.state.recordingPath, audioSet
+      path, audioSet, meteringEnabled
     );
 
     this.audioRecorderPlayer.addRecordBackListener((e) => {
       this.setState({
         recordingPath: uri,
-        recordSecs: e.current_position,
+        recordSecs: e.currentPosition,
         recordTime: this.audioRecorderPlayer.mmssss(
-          Math.floor(e.current_position),
+          Math.floor(e.currentPosition),
         ),
       });
     });
   };
 
-  async onStopRecord() {
+  onStopRecord = async () => {
     const result = await this.audioRecorderPlayer.stopRecorder();
     this.audioRecorderPlayer.removeRecordBackListener();
 
@@ -470,23 +484,18 @@ class InputForm extends Component {
     return true;
   };
 
-  async onStartPlay() {
+  onStartPlay = async () => {
+    const recorderStoped = this.onStopRecord();
     const msg = await this.audioRecorderPlayer.startPlayer(this.state.recordingPath);
-    this.audioRecorderPlayer.setVolume(1.0);
-    
     this.audioRecorderPlayer.addPlayBackListener((e) => {
-      if (e.current_position === e.duration) {
-        this.audioRecorderPlayer.stopPlayer();
-      }
-
       this.setState({
-        currentPositionSec: e.current_position,
+        currentPositionSec: e.currentPosition,
         currentDurationSec: e.duration,
-        playTime: this.audioRecorderPlayer.mmssss(
-          Math.floor(e.current_position),
-        ),
+        playTime: this.audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
         duration: this.audioRecorderPlayer.mmssss(Math.floor(e.duration)),
       });
+
+      return;
     });
   };
 
@@ -687,13 +696,16 @@ const ScreenStyle = StyleSheet.create({
     backgroundColor: 'white',
     flexDirection: 'row',
     padding: 10,
-    paddingTop: 3,
-    alignItems: 'center'
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    borderTopWidth: 1,
+    borderTopColor: '#eee'
   },
   inputField: {
     flex: 1,
     backgroundColor: 'white',
     textAlign: 'left',
+    marginBottom: 10
   },
   buttonContainer: {
     marginHorizontal: 5,

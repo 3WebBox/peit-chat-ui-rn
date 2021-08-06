@@ -132,8 +132,6 @@ class Chat extends Component {
     };
 
     ws.onclose = e => {
-      console.log(e);
-
       this.setState({ 
         connectionError: true, 
         error: e, 
@@ -170,8 +168,6 @@ class Chat extends Component {
       var messages = this.state.messages || [];
 
       messages.unshift(msg);
-
-      console.log(messages);
 
       this.setState({ messages: messages });
     }

@@ -14,8 +14,6 @@ const AUDIO_STATUS = {
 }
 
 async function startPlayer(path, callback) {
-  console.log({ currentPath, path })
-
   if (currentPath === undefined) {
     currentPath = path
     currentCallback = callback
@@ -24,7 +22,7 @@ async function startPlayer(path, callback) {
       try {
         await stopPlayer()
       } catch (error) {
-        console.log('ERROR STOP PLAYER TOP')
+        console.error('ERROR STOP PLAYER TOP', error)
       }
     }
     currentPath = path
@@ -37,30 +35,35 @@ async function startPlayer(path, callback) {
 
   try {
     const activePath = await audioRecorderPlayer.startPlayer(currentPath);
-    console.log({ activePath })
+
+    console.log('currentPosition', currentPosition);
+
     currentCallback({
-      status: (currentPath === path) && (currentPosition > 0) ? AUDIO_STATUS.resume : AUDIO_STATUS.begin
-    })
+      status: (currentPath === path) && (currentPosition > 0) 
+        ? AUDIO_STATUS.resume 
+        : AUDIO_STATUS.begin
+    });
+
     audioRecorderPlayer.addPlayBackListener(async (e) => {
-      if (e.current_position === e.duration) {
+      if (e.currentPosition === e.duration) {
         try {
           await stopPlayer()
         } catch (error) {
-          console.log('ERROR STOP PLAYER IN LISTENER')
+          console.error('ERROR STOP PLAYER IN LISTENER', error)
         }
       } else {
         currentCallback({
           status: AUDIO_STATUS.play,
           data: e,
           playPositionString: audioRecorderPlayer.mmssss(
-            Math.floor(e.current_position)
+            Math.floor(e.currentPosition)
           )
         })
       }
       return
     });
   } catch (error) {
-    console.log({ 'ERROR PLAY PLAYER': error })
+    console.error('ERROR PLAY PLAYER', error)
   }
 }
 
@@ -69,13 +72,12 @@ async function pausePlayer() {
     await audioRecorderPlayer.pausePlayer();
     currentCallback({ status: AUDIO_STATUS.pause })
   } catch (error) {
-    console.log({ 'ERROR PAUSE PLAYER': error })
+    console.error('ERROR PAUSE PLAYER', error)
   }
 }
 
 async function stopPlayer() {
   const isStop = await audioRecorderPlayer.stopPlayer();
-  console.log({ isStop })
   audioRecorderPlayer.removePlayBackListener()
   currentPosition = 0
   currentCallback({ status: AUDIO_STATUS.stop })

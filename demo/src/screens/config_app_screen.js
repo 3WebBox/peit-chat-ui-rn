@@ -159,6 +159,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#eee',
     borderBottomColor: '#ccc',
     borderBottomWidth: 1,
+    padding: 15,
   },
   defaultValuesButton: {
     marginVertical: 10,

@@ -96,7 +96,6 @@ export default class Message extends Component {
   }
 
   async onStopPlay() {
-    console.log('onStopPlay');
     AudioManager.stopPlayer();
 
     this.setState({ isPlay: false, isPause: false, isStop: true })
@@ -109,33 +108,29 @@ export default class Message extends Component {
       const { status } = res
       switch (status) {
         case AudioManager.AUDIO_STATUS.begin: {
-          console.log('BEGIN AUDIO')
           this.setState({ isPlay: true, isPause: false, isStop: true })
           break;
         }
         case AudioManager.AUDIO_STATUS.play: {
-          const { current_position, duration } = res.data
+          const { currentPosition, duration } = res.data;
 
           this.setState({
             duration: duration,
-            playDuration: current_position,
+            playDuration: currentPosition,
             playPositionString: res.playPositionString
           });
 
           break
         }
         case AudioManager.AUDIO_STATUS.pause: {
-          console.log('PAUSE AUDIO')
           this.setState({ isPlay: false, isPause: true, isStop: true })
           break
         }
         case AudioManager.AUDIO_STATUS.resume: {
-          console.log('RESUME AUDIO')
           this.setState({ isPlay: true, isPause: false, isStop: true })
           break;
         }
         case AudioManager.AUDIO_STATUS.stop: {
-          console.log('STOP AUDIO')
           this.setState({ isPlay: false, isPause: false, isStop: true })
           break
         }

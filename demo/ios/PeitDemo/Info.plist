@@ -55,6 +55,8 @@
 	<string>This will allow you to record voice notes and voice commands.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allows PEIT to access your library to share media</string>
+	<key>UIUserInterfaceStyle</key>
+    <string>Light</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>

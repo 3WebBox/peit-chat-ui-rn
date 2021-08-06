@@ -1,0 +1,6 @@
+module Pods_PeitDemo_PeitDemoTests {
+  umbrella header "Pods-PeitDemo-PeitDemoTests-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "react-native-background-upload",
+  "version": "6.4.0",
+  "license": {
+    "type": "MIT"
+  },
+  "homepage": "https://github.com/Vydia/react-native-background-upload",
+  "authors": {
+    "name": "Steve Potter"
+  },
+  "summary": "Cross platform http post file uploader with android and iOS background support",
+  "source": {
+    "git": "git+https://github.com/Vydia/react-native-background-upload.git"
+  },
+  "source_files": "ios/*.{h,m}",
+  "platforms": {
+    "ios": "9.0"
+  },
+  "dependencies": {
+    "React": [
+
+    ]
+  }
+}

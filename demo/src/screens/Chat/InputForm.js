@@ -705,7 +705,7 @@ const ScreenStyle = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
     textAlign: 'left',
-    marginBottom: 10
+    ...Platform.select({ios: { marginBottom: 10 }})
   },
   buttonContainer: {
     marginHorizontal: 5,

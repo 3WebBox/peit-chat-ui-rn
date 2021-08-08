@@ -7,7 +7,6 @@
  */
 
 import React, { Component } from 'react';
-import { Navigation } from 'react-native-navigation';
 
 import {
   SafeAreaView,
@@ -47,6 +46,8 @@ class Chat extends Component {
       connectionError: false,
       headerHeight: 0,
 
+      headerHeight: props.headerHeight || 0,
+
       page: 1,
       stayUp: false,
       messages: null,
@@ -59,17 +60,7 @@ class Chat extends Component {
     };
   }
 
-  async getHeaderHeight() {
-    const e = await Navigation.constants();
-    var height = 0;
-
-    if(Platform.OS !== 'ios') height = e.statusBarHeight;
-
-    this.setState({ headerHeight:  height });
-  }
-
   componentDidMount() {
-    this.getHeaderHeight();
     this.getMessages();
   }
 
